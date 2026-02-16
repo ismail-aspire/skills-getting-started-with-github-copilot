@@ -158,6 +158,39 @@ button:hover {
   color: #888;
 }
 
+/* Hide default bullets and style participant items */
+.participants-list {
+  list-style: none;
+  padding-left: 0;
+}
+.participants-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed #eee;
+}
+.participant-email {
+  color: #444;
+  word-break: break-all;
+}
+.participant-remove {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.participant-remove:hover {
+  background-color: rgba(198, 40, 40, 0.08);
+  color: #b71c1c;
+}
+
 footer {
   text-align: center;
   margin-top: 30px;

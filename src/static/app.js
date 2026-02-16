@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p class="availability"><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
 
         // Participants section
@@ -41,7 +41,57 @@ document.addEventListener("DOMContentLoaded", () => {
         if (details.participants && details.participants.length) {
           details.participants.forEach((p) => {
             const li = document.createElement("li");
-            li.textContent = p;
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = p;
+            nameSpan.className = "participant-email";
+
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "participant-remove";
+            removeBtn.setAttribute("aria-label", `Remove ${p} from ${name}`);
+            removeBtn.innerHTML = "&times;";
+
+            // Click handler to unregister participant
+            removeBtn.addEventListener("click", async () => {
+              try {
+                const resp = await fetch(
+                  `/activities/${encodeURIComponent(name)}/participants?email=${encodeURIComponent(p)}`,
+                  { method: "DELETE" }
+                );
+
+                const resJson = await resp.json();
+                if (resp.ok) {
+                  // remove from UI
+                  li.remove();
+
+                  // update availability count
+                  const avail = activityCard.querySelector(".availability");
+                  if (avail) {
+                    const m = avail.textContent.match(/(\\d+) spots left/);
+                    if (m) {
+                      const current = parseInt(m[1], 10);
+                      avail.textContent = `Availability: ${current + 1} spots left`;
+                    }
+                  }
+
+                  messageDiv.textContent = resJson.message || "Participant removed";
+                  messageDiv.className = "success";
+                } else {
+                  messageDiv.textContent = resJson.detail || "Failed to remove participant";
+                  messageDiv.className = "error";
+                }
+              } catch (err) {
+                console.error("Error removing participant:", err);
+                messageDiv.textContent = "Failed to remove participant";
+                messageDiv.className = "error";
+              }
+
+              messageDiv.classList.remove("hidden");
+              setTimeout(() => messageDiv.classList.add("hidden"), 5000);
+            });
+
+            li.appendChild(nameSpan);
+            li.appendChild(removeBtn);
             ul.appendChild(li);
           });
         } else {
